@@ -1,17 +1,10 @@
+#include "hash_table.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct {
-  char *key;
-  char *value;
-} ht_item;
-
-typedef struct {
-  int size;
-  int length;
-  ht_item **items;
-} hash_table;
+int PRIME_A = 157;
+int PRIME_B = 199;
 
 hash_table *ht_new() {
   hash_table *ht = malloc(sizeof(hash_table));
@@ -21,7 +14,7 @@ hash_table *ht_new() {
   return ht;
 }
 
-ht_item *item_new(char *k, char *v) {
+ht_item *item_new(const char *k, const char *v) {
   ht_item *i;
   i->key = strdup(k);
   i->value = strdup(v);
@@ -53,4 +46,23 @@ int hash_str(const char *s, int a, int m) {
     hash = hash % m;
   }
   return hash;
+}
+
+int get_hash(const char *s, int range, int attempt) {
+  const int hash_a = hash_str(s, PRIME_A, range);
+  const int hash_b = hash_str(s, PRIME_B, range);
+  return (hash_a + (attempt * (hash_b + 1))) % range;
+}
+
+void ht_insert(hash_table *ht, const char *key, const char *value) {
+  if (ht->length >= ht->size) {
+    return;
+  }
+  int idx = -1;
+  int i = 0;
+  while (!(idx > 0 && ht->items[idx] != NULL)) {
+    idx = get_hash(key, ht->size, i);
+    i++;
+  }
+  ht->items[idx] = item_new(key, value);
 }
