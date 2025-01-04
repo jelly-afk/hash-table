@@ -66,3 +66,16 @@ void ht_insert(hash_table *ht, const char *key, const char *value) {
   }
   ht->items[idx] = item_new(key, value);
 }
+
+char *ht_search(hash_table *ht, const char *key) {
+  int i = 0;
+  int idx = get_hash(key, ht->size, i);
+  while (ht->items[idx] != NULL && strcmp(ht->items[idx]->key, key) != 0) {
+    idx = get_hash(key, ht->size, i);
+    i++;
+  }
+  if (ht->items[idx] == NULL) {
+    return NULL;
+  }
+  return ht->items[idx]->value;
+}
