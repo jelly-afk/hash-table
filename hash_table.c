@@ -60,9 +60,14 @@ void ht_insert(hash_table *ht, const char *key, const char *value) {
   }
   int idx = -1;
   int i = 0;
-  while (!(idx > 0 && ht->items[idx] != NULL)) {
-    idx = get_hash(key, ht->size, i);
+  idx = get_hash(key, ht->size, i);
+  while (ht->items[idx] != NULL || ht->items[idx]->key != key) {
     i++;
+    idx = get_hash(key, ht->size, i);
+  }
+  if (ht->items[idx] != NULL) {
+    ht->items[idx]->value = strdup(value);
+    return;
   }
   ht->items[idx] = item_new(key, value);
 }
@@ -78,4 +83,18 @@ char *ht_search(hash_table *ht, const char *key) {
     return NULL;
   }
   return ht->items[idx]->value;
+}
+
+void ht_delete(hash_table *ht, const char *key) {
+  int i = 0;
+  int idx = get_hash(key, ht->size, i);
+  while (ht->items[idx] != NULL && strcmp(ht->items[idx]->key, key) != 0) {
+    idx = get_hash(key, ht->size, i);
+    i++;
+  }
+  if (ht->items[idx] == NULL) {
+    return;
+  }
+  item_del(ht->items[idx]);
+  ht->length--;
 }
